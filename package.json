@@ -32,7 +32,10 @@
   "dependencies": {
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-draggable": "^3.3.2",
     "react-scripts": "3.0.1",
+    "react-transition-group": "^4.2.2",
+    "styled-components": "^4.3.2",
     "typescript": "^3.5.3"
   },
   "devDependencies": {
@@ -44,7 +47,9 @@
     "@types/node": "^12.6.3",
     "@types/react": "^16.8.23",
     "@types/react-dom": "^16.8.4",
+    "@types/react-transition-group": "^4.2.2",
     "@types/storybook__react": "^4.0.2",
+    "@types/styled-components": "^4.1.18",
     "@typescript-eslint/eslint-plugin": "^1.12.0",
     "@typescript-eslint/parser": "^1.12.0",
     "eslint-config-prettier": "^6.0.0",
