@@ -1,41 +1,51 @@
 import React from 'react'
 import styled from 'styled-components'
 
-interface BubbleProps {
+export interface Props {
     x: number
     y: number
-    word: string
+    onConfirm: (ev: ConfirmEvent) => void
 }
 
-interface BubbleState {
+interface State {
     x: number
     y: number
-    word: string
     in: boolean
+}
+
+export interface ConfirmEvent {
+    value: string
 }
 
 const G = styled.g``
 
-export class AddBubble extends React.Component<BubbleProps, BubbleState> {
-    public constructor(props: BubbleProps) {
+export class AddBubble extends React.Component<Props, State> {
+    public constructor(props: Props) {
         super(props)
         this.state = { ...props, in: false }
     }
-    private handleClick(ev: React.MouseEvent) {}
+    private handleClick(): void {
+        const text = prompt()
+        if (text && this.props.onConfirm) this.props.onConfirm({ value: text })
+    }
     public render(): JSX.Element {
         return (
             <G>
                 <circle
                     onClick={ev => this.handleClick(ev)}
+                    cx={this.props.x}
+                    cy={this.props.y}
                     r="50"
                     fill="pink"
                 />
                 <text
+                    x={this.props.x}
+                    y={this.props.y}
                     fill="black"
                     textAnchor="middle"
                     dominantBaseline="central"
                 >
-                    {this.state.word}
+                    +
                 </text>
             </G>
         )

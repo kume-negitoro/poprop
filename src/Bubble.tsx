@@ -1,20 +1,19 @@
 import React from 'react'
 import styled from 'styled-components'
 import { CSSTransition } from 'react-transition-group'
-import Draggable, { DraggableEvent, DraggableData } from 'react-draggable'
+import { DraggableEventHandler, DraggableCore } from 'react-draggable'
 
 import { easeOutElastic } from './keyframes/easeInElastic'
 
-interface BubbleProps {
+export interface Props {
     x: number
     y: number
     word: string
+    key: number
+    onDrag: DraggableEventHandler
 }
 
-interface BubbleState {
-    x: number
-    y: number
-    word: string
+interface State {
     in: boolean
 }
 
@@ -31,46 +30,42 @@ const G = styled.g`
     }
 `
 
-export class Bubble extends React.Component<BubbleProps, BubbleState> {
-    public constructor(props: BubbleProps) {
+export class Bubble extends React.Component<Props, State> {
+    public constructor(props: Props) {
         super(props)
-        this.state = { ...props, in: false }
+        this.state = { in: false }
     }
     public componentDidMount(): void {
         this.setState({
             in: true,
         })
     }
-    private handleStart(ev: DraggableEvent, data: DraggableData): void {}
     public render(): JSX.Element {
         return (
-            <Draggable
-                defaultPosition={{ x: this.state.x, y: this.state.y }}
-                onStart={(ev, data) => this.handleStart(ev, data)}
-            >
-                <G>
+            <DraggableCore onDrag={this.props.onDrag}>
+                <G transform={`translate(${this.props.x},${this.props.y})`}>
                     <CSSTransition
                         classNames="bubble"
                         in={this.state.in}
-                        timeout={10000}
+                        timeout={1000}
                     >
                         <circle r="50" fill="pink" />
                     </CSSTransition>
                     <CSSTransition
                         classNames="bubble"
                         in={this.state.in}
-                        timeout={10000}
+                        timeout={1000}
                     >
                         <text
                             fill="black"
                             textAnchor="middle"
                             dominantBaseline="central"
                         >
-                            {this.state.word}
+                            {this.props.word}
                         </text>
                     </CSSTransition>
                 </G>
-            </Draggable>
+            </DraggableCore>
         )
     }
 }
