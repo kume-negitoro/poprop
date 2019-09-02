@@ -4,7 +4,7 @@ import styled from 'styled-components'
 export interface Props {
     x: number
     y: number
-    onConfirm: (ev: ConfirmEvent) => void
+    onConfirm: (ev: ConfirmEvent, data: Props) => void
 }
 
 interface State {
@@ -24,9 +24,11 @@ export class AddBubble extends React.Component<Props, State> {
         super(props)
         this.state = { ...props, in: false }
     }
+    /* eslint @typescript-eslint/no-unused-vars: 0 */
     private handleClick(ev: React.MouseEvent): void {
         const text = prompt()
-        if (text && this.props.onConfirm) this.props.onConfirm({ value: text })
+        if (text && this.props.onConfirm)
+            this.props.onConfirm({ value: text }, this.props)
     }
     public render(): JSX.Element {
         return (

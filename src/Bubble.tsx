@@ -10,9 +10,11 @@ export interface Props {
     y: number
     word: string
     key: number | string
+    fill?: string
     onDrag?: DraggableEventHandler
     onClick?: (ev: React.MouseEvent, data: Props) => void
     selected: boolean
+    active: boolean
 }
 
 interface State {
@@ -48,7 +50,10 @@ export class Bubble extends React.Component<Props, State> {
     public render(): JSX.Element {
         return (
             <DraggableCore onDrag={this.props.onDrag}>
-                <G transform={`translate(${this.props.x},${this.props.y})`}>
+                <G
+                    opacity={this.props.active ? 1 : 0.2}
+                    transform={`translate(${this.props.x},${this.props.y})`}
+                >
                     <CSSTransition
                         classNames="bubble"
                         in={this.state.in}
@@ -57,7 +62,7 @@ export class Bubble extends React.Component<Props, State> {
                         <circle
                             onClick={ev => this.handleClick(ev)}
                             r="50"
-                            fill="pink"
+                            fill={this.props.fill ? this.props.fill : 'pink'}
                             stroke="black"
                             strokeWidth={this.props.selected ? 2 : 0}
                         />

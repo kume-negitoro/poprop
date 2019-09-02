@@ -1,36 +1,61 @@
 import React from 'react'
 import { DraggableEvent, DraggableData } from 'react-draggable'
 import { Bubble, Props as BubbleProps } from './Bubble'
-import { AddBubble, ConfirmEvent } from './AddBubble'
+import { AddBubble, ConfirmEvent, Props as AddBubbleProps } from './AddBubble'
+import { parseAsModel, Model } from 'w2v-api'
 
 /* eslint @typescript-eslint/no-empty-interface: 0 */
 export interface Props {}
 
 export interface State {
-    bubblesProps: Omit<BubbleProps, 'key' | 'onDrag'>[]
+    childBubblesProps: Omit<BubbleProps, 'key' | 'onDrag'>[]
+    suggestBubblesProps: Omit<BubbleProps, 'key' | 'onDrag'>[]
+    suggestAddBubbleProp?: Omit<AddBubbleProps, 'onConfirm'>
 }
 
 export class SvgCanvas extends React.Component<Props, State> {
+    private model: Promise<Model>
     public constructor(props: Props) {
         super(props)
-        this.state = { bubblesProps: [] }
+        this.state = {
+            childBubblesProps: [],
+            suggestBubblesProps: [],
+            suggestAddBubbleProp: {
+                x: 200,
+                y: 200,
+            },
+        }
+        this.model = fetch('ja.tsv')
+            .then(res => res.text())
+            .then(text => parseAsModel(text.trim()))
+            /* eslint no-console: 0 */
+            .then(model => (console.log('done'), model))
     }
+    /* eslint @typescript-eslint/no-unused-vars: 0 */
     private handleScreenClick(ev: React.MouseEvent): void {
         this.setState(prev => ({
-            bubblesProps: prev.bubblesProps.map(props => ({
+            suggestAddBubbleProp:
+                this.state.childBubblesProps.length > 0
+                    ? undefined
+                    : prev.suggestAddBubbleProp,
+            childBubblesProps: prev.childBubblesProps.map(props => ({
                 ...props,
+                active: true,
                 selected: false,
             })),
+            suggestBubblesProps: [],
         }))
     }
-    private handleComfirm(ev: ConfirmEvent): void {
+    private handleComfirm(ev: ConfirmEvent, data: AddBubbleProps): void {
         this.setState(prev => ({
-            bubblesProps: [
-                ...prev.bubblesProps,
+            suggestAddBubbleProp: undefined,
+            childBubblesProps: [
+                ...prev.childBubblesProps,
                 {
-                    x: 200,
-                    y: 200,
+                    x: data.x,
+                    y: data.y,
                     word: ev.value,
+                    active: true,
                     selected: false,
                 },
             ],
@@ -43,18 +68,48 @@ export class SvgCanvas extends React.Component<Props, State> {
     ): void {
         ev.stopPropagation()
         this.setState(prev => ({
-            bubblesProps: prev.bubblesProps.map((props, i) =>
+            childBubblesProps: prev.childBubblesProps.map((props, i) =>
                 index === i
                     ? {
                           ...props,
+                          active: true,
                           selected: true,
                       }
                     : {
                           ...props,
+                          active: false,
                           selected: false,
                       }
             ),
         }))
+
+        // suggest
+        this.model.then(model => {
+            const target = this.state.childBubblesProps[index]
+            console.time()
+            const similars = model.mostSimilar([target.word], 5)[0]
+            if (!similars) return
+            console.timeEnd()
+            this.setState({
+                suggestAddBubbleProp: {
+                    x: target.x + 200,
+                    y: target.y + 0,
+                },
+                suggestBubblesProps: similars.map((wv, i) => {
+                    const d = (360 / 6) * (i + 1)
+                    const x = target.x + 200 * Math.cos(d * (Math.PI / 180))
+                    const y = target.y + 200 * Math.sin(d * (Math.PI / 180))
+                    return {
+                        x,
+                        y,
+                        word: wv.word,
+                        fill: 'skyblue',
+                        active: true,
+                        selected: false,
+                    }
+                }),
+            })
+        })
     }
     private handleChildBubbleDrag(
         ev: DraggableEvent,
@@ -63,7 +118,7 @@ export class SvgCanvas extends React.Component<Props, State> {
     ): void {
         // propsはそのままセーブデータにできるようにする
         this.setState(prev => ({
-            bubblesProps: prev.bubblesProps.map((props, i) =>
+            childBubblesProps: prev.childBubblesProps.map((props, i) =>
                 index === i
                     ? {
                           ...props,
@@ -72,6 +127,31 @@ export class SvgCanvas extends React.Component<Props, State> {
                       }
                     : props
             ),
+        }))
+    }
+    private handleSuggestBubbleClick(
+        ev: React.MouseEvent,
+        data: BubbleProps,
+        index: number
+    ): void {
+        ev.stopPropagation()
+        this.setState(prev => ({
+            suggestAddBubbleProp: undefined,
+            suggestBubblesProps: [],
+            childBubblesProps: [
+                ...prev.childBubblesProps.map(props => ({
+                    ...props,
+                    active: true,
+                    selected: false,
+                })),
+                {
+                    x: data.x,
+                    y: data.y,
+                    word: data.word,
+                    active: true,
+                    selected: false,
+                },
+            ],
         }))
     }
     public render(): JSX.Element {
@@ -83,7 +163,7 @@ export class SvgCanvas extends React.Component<Props, State> {
                 height="1000"
                 onClick={ev => this.handleScreenClick(ev)}
             >
-                {this.state.bubblesProps.map((props, i) => (
+                {this.state.childBubblesProps.map((props, i) => (
                     <Bubble
                         key={i}
                         onClick={(ev, data) =>
@@ -95,11 +175,26 @@ export class SvgCanvas extends React.Component<Props, State> {
                         {...props}
                     />
                 ))}
-                <AddBubble
+                {this.state.suggestAddBubbleProp ? (
+                    <AddBubble
+                        onConfirm={(ev, data) => this.handleComfirm(ev, data)}
+                        {...this.state.suggestAddBubbleProp}
+                    />
+                ) : null}
+                {this.state.suggestBubblesProps.map((props, i) => (
+                    <Bubble
+                        key={i}
+                        onClick={(ev, data) =>
+                            this.handleSuggestBubbleClick(ev, data, i)
+                        }
+                        {...props}
+                    />
+                ))}
+                {/* <AddBubble
                     onConfirm={ev => this.handleComfirm(ev)}
                     x={100}
                     y={100}
-                />
+                /> */}
             </svg>
         )
     }
