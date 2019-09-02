@@ -16,3 +16,9 @@
 .CardButton {
     float: right;
 }
+.WordCount {
+    font-size: 20px;
+}
+.WordCountInput {
+    width: 50px;
+}
