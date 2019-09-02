@@ -1840,14 +1840,6 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-native@*":
-  version "0.60.9"
-  resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.60.9.tgz#89135a6ac9a71a64837e2100dc8dbc7a71b4fe34"
-  integrity sha512-fsceCFV6UQOoQ/DzLS0ya82mZdGmUhMvkkVIq3pjMmxcxR6ENb0noPw6ssE4aVx61J6ukth+MT2PNFgy6eQ9iQ==
-  dependencies:
-    "@types/prop-types" "*"
-    "@types/react" "*"
-
 "@types/react-transition-group@^4.2.2":
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/@types/react-transition-group/-/react-transition-group-4.2.2.tgz#8c851c4598a23a3a34173069fb4c5c9e41c02e3f"
@@ -1876,13 +1868,13 @@
     "@types/react" "*"
     "@types/webpack-env" "*"
 
-"@types/styled-components@^4.1.18":
-  version "4.1.18"
-  resolved "https://registry.yarnpkg.com/@types/styled-components/-/styled-components-4.1.18.tgz#348804fe5a399ae0a46550afaf030085815ad931"
-  integrity sha512-VrHkgvjbxQXOw0xWSUckusUUZ4y/jqN1u7kF29ngh0oE6uOrlZHleTgqeUqylQqHQIeQ8MxFb50BRHy8ju5DHg==
+"@types/styled-components@4.1.8":
+  version "4.1.8"
+  resolved "https://registry.yarnpkg.com/@types/styled-components/-/styled-components-4.1.8.tgz#15c8a53bb4b9066e528fafb7558963dee5690ae0"
+  integrity sha512-NrG0wmB9Rafy5i00GFxUM/uEge148bX2QPr+Q/MI2fXrew6WOp1hN2A3YEG0AeT45z47CMdJ3BEffPsdQCWayA==
   dependencies:
+    "@types/node" "*"
     "@types/react" "*"
-    "@types/react-native" "*"
     csstype "^2.2.0"
 
 "@types/webpack-env@*":
@@ -10301,6 +10293,11 @@ postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.14, postcss@^7.0.17, postcss@^7.0.2
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
+postinstall-build@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/postinstall-build/-/postinstall-build-5.0.3.tgz#238692f712a481d8f5bc8960e94786036241efc7"
+  integrity sha512-vPvPe8TKgp4FLgY3+DfxCE5PIfoXBK2lyLfNCxsRbDsV6vS4oU5RG/IWxrblMn6heagbnMED3MemUQllQ2bQUg==
+
 prelude-ls@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
@@ -12922,6 +12919,12 @@ vm-browserify@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.0.tgz#bd76d6a23323e2ca8ffa12028dc04559c75f9019"
   integrity sha512-iq+S7vZJE60yejDYM0ek6zg308+UZsdtPExWP9VZoCFCz1zkJoXFnAX7aZfd/ZwrkidzdUZL0C/ryW+JwAiIGw==
+
+w2v-api@kume-negitoro/w2v-api:
+  version "0.0.1"
+  resolved "https://codeload.github.com/kume-negitoro/w2v-api/tar.gz/851dcfdb3cfbcc71232cd9512a11fbada008f91a"
+  dependencies:
+    postinstall-build "^5.0.3"
 
 w3c-hr-time@^1.0.1:
   version "1.0.1"
