@@ -15,6 +15,14 @@ export class SvgCanvas extends React.Component<Props, State> {
         super(props)
         this.state = { bubblesProps: [] }
     }
+    private handleScreenClick(ev: React.MouseEvent): void {
+        this.setState(prev => ({
+            bubblesProps: prev.bubblesProps.map(props => ({
+                ...props,
+                selected: false,
+            })),
+        }))
+    }
     private handleComfirm(ev: ConfirmEvent): void {
         this.setState(prev => ({
             bubblesProps: [
@@ -23,8 +31,29 @@ export class SvgCanvas extends React.Component<Props, State> {
                     x: 200,
                     y: 200,
                     word: ev.value,
+                    selected: false,
                 },
             ],
+        }))
+    }
+    private handleChildBubbleClick(
+        ev: React.MouseEvent,
+        data: BubbleProps,
+        index: number
+    ): void {
+        ev.stopPropagation()
+        this.setState(prev => ({
+            bubblesProps: prev.bubblesProps.map((props, i) =>
+                index === i
+                    ? {
+                          ...props,
+                          selected: true,
+                      }
+                    : {
+                          ...props,
+                          selected: false,
+                      }
+            ),
         }))
     }
     private handleChildBubbleDrag(
@@ -33,7 +62,6 @@ export class SvgCanvas extends React.Component<Props, State> {
         index: number
     ): void {
         // propsはそのままセーブデータにできるようにする
-        // react-selectableを使う
         this.setState(prev => ({
             bubblesProps: prev.bubblesProps.map((props, i) =>
                 index === i
@@ -53,10 +81,14 @@ export class SvgCanvas extends React.Component<Props, State> {
                 version="1.1"
                 width="1000"
                 height="1000"
+                onClick={ev => this.handleScreenClick(ev)}
             >
                 {this.state.bubblesProps.map((props, i) => (
                     <Bubble
                         key={i}
+                        onClick={(ev, data) =>
+                            this.handleChildBubbleClick(ev, data, i)
+                        }
                         onDrag={(ev, data) =>
                             this.handleChildBubbleDrag(ev, data, i)
                         }

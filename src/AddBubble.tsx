@@ -24,7 +24,7 @@ export class AddBubble extends React.Component<Props, State> {
         super(props)
         this.state = { ...props, in: false }
     }
-    private handleClick(): void {
+    private handleClick(ev: React.MouseEvent): void {
         const text = prompt()
         if (text && this.props.onConfirm) this.props.onConfirm({ value: text })
     }

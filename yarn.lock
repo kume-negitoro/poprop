@@ -10886,11 +10886,6 @@ react-scripts@3.0.1:
   optionalDependencies:
     fsevents "2.0.6"
 
-react-selectable-fast@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/react-selectable-fast/-/react-selectable-fast-3.0.0.tgz#24bd1bd10a840e852d3083505c1dddfa9bf5a374"
-  integrity sha512-RYUqLoWjVhYL+chR1ScaP1mR87+lcvXF+U+iyzI+c6c3o2GwSb71meDzSBzuG6xnU9Ehq5+AlgA+epFTypmXpw==
-
 react-syntax-highlighter@^8.0.1:
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/react-syntax-highlighter/-/react-syntax-highlighter-8.1.0.tgz#59103ff17a828a27ed7c8f035ae2558f09b6b78c"

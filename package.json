@@ -34,7 +34,6 @@
     "react-dom": "^16.8.6",
     "react-draggable": "^3.3.2",
     "react-scripts": "3.0.1",
-    "react-selectable-fast": "^3.0.0",
     "react-transition-group": "^4.2.2",
     "styled-components": "^4.3.2",
     "typescript": "^3.5.3"
