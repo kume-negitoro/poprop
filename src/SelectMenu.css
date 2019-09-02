@@ -3,12 +3,12 @@
 }
 .ButtonImage {
     pointer-events: none;
-    width: 100px;
-    height: 100px;
+    width: 200px;
+    height: 200px;
 }
 .CardButton {
     float: right;
 }
 .MenuButton {
-    margin: 10000px;
+    margin: 100px;
 }

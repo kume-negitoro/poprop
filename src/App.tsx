@@ -1,6 +1,6 @@
 import React from 'react'
 import SelectMenu from './SelectMenu'
-//import './App.css'
+import './App.css'
 
 const App: React.FC = (): JSX.Element => {
     return (

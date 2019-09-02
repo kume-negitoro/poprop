@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import TextField from '@material-ui/core/TextField'
+import Box from '@material-ui/core/Box'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
@@ -20,20 +21,24 @@ const SelectMenu: React.FC = (): JSX.Element => {
                 <div>
                     <Button
                         className="MenuButton"
-                        variant="outlined"
+                        variant="text"
                         color="inherit"
                         onClick={() => setMode(1)}
                     >
-                        <img className="ButtonImage" src={NewFile} />
-                        新規プロジェクト
+                        <Box textAlign="center">
+                            <img className="ButtonImage" src={NewFile} />
+                            <p>新規プロジェクト</p>
+                        </Box>
                     </Button>
                     <Button
                         className="MenuButton"
-                        variant="outlined"
+                        variant="text"
                         color="inherit"
                     >
-                        <img className="ButtonImage" src={OpenFile} />
-                        既存プロジェクト
+                        <Box textAlign="center">
+                            <img className="ButtonImage" src={OpenFile} />
+                            <p>既存プロジェクト</p>
+                        </Box>
                     </Button>
                 </div>
             )}
