@@ -1,14 +1,18 @@
 .FileName {
     width: 500px;
 }
+.ButtonContainer {
+    line-height: 0px;
+}
 .ButtonImage {
     pointer-events: none;
     width: 200px;
     height: 200px;
 }
+.ButtonText {
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
 .CardButton {
     float: right;
-}
-.MenuButton {
-    margin: 100px;
 }

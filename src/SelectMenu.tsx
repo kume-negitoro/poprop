@@ -20,24 +20,19 @@ const SelectMenu: React.FC = (): JSX.Element => {
             {mode == 0 && (
                 <div>
                     <Button
-                        className="MenuButton"
                         variant="text"
                         color="inherit"
                         onClick={() => setMode(1)}
                     >
-                        <Container>
+                        <Container className="ButtonContainer">
                             <img className="ButtonImage" src={NewFile} />
-                            <p>新規プロジェクト</p>
+                            <p className="ButtonText">新規プロジェクト</p>
                         </Container>
                     </Button>
-                    <Button
-                        className="MenuButton"
-                        variant="text"
-                        color="inherit"
-                    >
-                        <Container>
+                    <Button variant="text" color="inherit">
+                        <Container className="ButtonContainer">
                             <img className="ButtonImage" src={OpenFile} />
-                            <p>既存プロジェクト</p>
+                            <p className="ButtonText">既存プロジェクト</p>
                         </Container>
                     </Button>
                 </div>
