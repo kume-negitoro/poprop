@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import TextField from '@material-ui/core/TextField'
-import Box from '@material-ui/core/Box'
+import Container from '@material-ui/core/Container'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
@@ -25,20 +25,20 @@ const SelectMenu: React.FC = (): JSX.Element => {
                         color="inherit"
                         onClick={() => setMode(1)}
                     >
-                        <Box textAlign="center">
+                        <Container>
                             <img className="ButtonImage" src={NewFile} />
                             <p>新規プロジェクト</p>
-                        </Box>
+                        </Container>
                     </Button>
                     <Button
                         className="MenuButton"
                         variant="text"
                         color="inherit"
                     >
-                        <Box textAlign="center">
+                        <Container>
                             <img className="ButtonImage" src={OpenFile} />
                             <p>既存プロジェクト</p>
-                        </Box>
+                        </Container>
                     </Button>
                 </div>
             )}
