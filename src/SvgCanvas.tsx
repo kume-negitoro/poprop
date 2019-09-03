@@ -23,6 +23,7 @@ export class SvgCanvas extends React.Component<Props, State> {
             suggestAddBubbleProp: {
                 x: 200,
                 y: 200,
+                parent: '',
             },
         }
         this.model = fetch('ja.tsv')
@@ -58,13 +59,21 @@ export class SvgCanvas extends React.Component<Props, State> {
         this.setState(prev => ({
             suggestAddBubbleProp: undefined,
             childBubblesProps: [
-                ...prev.childBubblesProps,
+                ...prev.childBubblesProps.map(props => ({
+                    ...props,
+                    children:
+                        props.word === data.parent
+                            ? [...props.children, ev.value]
+                            : props.children,
+                })),
                 {
                     x: data.x,
                     y: data.y,
                     word: ev.value,
                     active: true,
                     selected: false,
+                    parent: data.parent,
+                    children: [],
                 },
             ],
         }))
@@ -75,6 +84,7 @@ export class SvgCanvas extends React.Component<Props, State> {
         index: number
     ): void {
         ev.stopPropagation()
+        console.log(data)
         this.setState(prev => ({
             childBubblesProps: prev.childBubblesProps.map((props, i) =>
                 index === i
@@ -106,6 +116,7 @@ export class SvgCanvas extends React.Component<Props, State> {
                 suggestAddBubbleProp: {
                     x: target.x + 200,
                     y: target.y + 0,
+                    parent: target.word,
                 },
                 suggestBubblesProps: similars.map((wv, i) => {
                     const d = (360 / 6) * (i + 1)
@@ -118,6 +129,8 @@ export class SvgCanvas extends React.Component<Props, State> {
                         fill: 'skyblue',
                         active: true,
                         selected: false,
+                        parent: target.word,
+                        children: [],
                     }
                 }),
             })
@@ -155,6 +168,10 @@ export class SvgCanvas extends React.Component<Props, State> {
                     ...props,
                     active: true,
                     selected: false,
+                    children:
+                        props.word === data.parent
+                            ? [...props.children, data.word]
+                            : props.children,
                 })),
                 {
                     x: data.x,
@@ -162,9 +179,27 @@ export class SvgCanvas extends React.Component<Props, State> {
                     word: data.word,
                     active: true,
                     selected: false,
+                    parent: data.parent,
+                    children: [],
                 },
             ],
         }))
+    }
+    private getChildBubblePropsFromWord(
+        word: string
+    ): Omit<BubbleProps, 'key' | 'onDrag'> | undefined {
+        return this.state.childBubblesProps.find(props => props.word === word)
+    }
+    private getAllLinesProps(
+        root: Omit<BubbleProps, 'key' | 'onDrag'>,
+        returns: { x1: number; y1: number; x2: number; y2: number }[] = []
+    ): { x1: number; y1: number; x2: number; y2: number }[] {
+        if (root.children.length === 0) return returns
+        return root.children.flatMap(word => {
+            const props = this.getChildBubblePropsFromWord(word) as BubbleProps
+            const lprops = { x1: root.x, y1: root.y, x2: props.x, y2: props.y }
+            return this.getAllLinesProps(props, [lprops, ...returns])
+        })
     }
     public render(): JSX.Element {
         return (
@@ -175,6 +210,19 @@ export class SvgCanvas extends React.Component<Props, State> {
                 height="1000"
                 onClick={ev => this.handleScreenClick(ev)}
             >
+                {this.state.childBubblesProps.length > 0 &&
+                    this.getAllLinesProps(this.state.childBubblesProps[0]).map(
+                        (props, i) => (
+                            <line
+                                key={i}
+                                stroke="black"
+                                x1={props.x1}
+                                y1={props.y1}
+                                x2={props.x2}
+                                y2={props.y2}
+                            />
+                        )
+                    )}
                 {this.state.childBubblesProps.map((props, i) => (
                     <Bubble
                         key={i}

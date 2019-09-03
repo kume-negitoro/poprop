@@ -11,6 +11,8 @@ export interface Props {
     word: string
     key: number | string
     fill?: string
+    parent: string
+    children: string[]
     onDrag?: DraggableEventHandler
     onClick?: (ev: React.MouseEvent, data: Props) => void
     selected: boolean

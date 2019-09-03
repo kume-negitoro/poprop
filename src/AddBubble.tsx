@@ -4,6 +4,7 @@ import styled from 'styled-components'
 export interface Props {
     x: number
     y: number
+    parent: string
     onConfirm: (ev: ConfirmEvent, data: Props) => void
 }
 
