@@ -12,7 +12,7 @@ import Close from '@material-ui/icons/Close'
 import Check from '@material-ui/icons/Check'
 import NewFile from './Fplus.svg'
 import OpenFile from './Fopen.svg'
-import { RouteComponentProps, Route } from 'react-router-dom'
+import { RouteComponentProps, Route, Switch } from 'react-router-dom'
 import { withRouter } from 'react-router'
 
 interface State {
@@ -27,7 +27,8 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
     })
 
     const handlePageChange = (address: string) => {
-        //props.history.push(address)
+        // eslint-disable-next-line react/prop-types
+        props.history.push(address)
     }
 
     const handleChange = (name: keyof State) => (
@@ -64,7 +65,6 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
                     type="number"
                     value={values.words}
                     onChange={handleChange('words')}
-                    defaultValue="3"
                 />
             </div>
         </div>
@@ -96,8 +96,10 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
 
     return (
         <div>
-            <Route path="/" exact compornent={topPage} />
-            <Route path="/NewFile" exact compornent={newFile} />
+            <Switch>
+                <Route path="/" exact component={topPage} />
+                <Route path="/NewFile" exact component={newFile} />
+            </Switch>
         </div>
     )
 }
