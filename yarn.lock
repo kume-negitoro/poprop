@@ -12922,7 +12922,7 @@ vm-browserify@^1.0.1:
 
 w2v-api@kume-negitoro/w2v-api:
   version "0.0.1"
-  resolved "https://codeload.github.com/kume-negitoro/w2v-api/tar.gz/2876fd46bf78be10a7ffeaf02ba2d0192d38465a"
+  resolved "https://codeload.github.com/kume-negitoro/w2v-api/tar.gz/e0cec12f9d95433ee84527f94e702e4355fdfd6e"
   dependencies:
     postinstall-build "^5.0.3"
 

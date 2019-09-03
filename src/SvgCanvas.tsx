@@ -47,6 +47,14 @@ export class SvgCanvas extends React.Component<Props, State> {
         }))
     }
     private handleComfirm(ev: ConfirmEvent, data: AddBubbleProps): void {
+        if (
+            this.state.childBubblesProps
+                .map(props => props.word)
+                .includes(ev.value)
+        ) {
+            alert('既に同じ単語が存在するため追加できませんでした')
+            return
+        }
         this.setState(prev => ({
             suggestAddBubbleProp: undefined,
             childBubblesProps: [
@@ -87,8 +95,12 @@ export class SvgCanvas extends React.Component<Props, State> {
         this.model.then(model => {
             const target = this.state.childBubblesProps[index]
             console.time()
-            const similars = model.mostSimilar([target.word], 5)[0]
-            if (!similars) return
+            const similars =
+                model.mostSimilar(
+                    [target.word],
+                    5,
+                    this.state.childBubblesProps.map(props => props.word)
+                )[0] || []
             console.timeEnd()
             this.setState({
                 suggestAddBubbleProp: {
