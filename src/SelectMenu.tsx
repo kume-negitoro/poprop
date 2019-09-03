@@ -7,20 +7,29 @@ import Container from '@material-ui/core/Container'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
-import './SelectMenu.css'
+import { makeStyles } from '@material-ui/core'
 import Close from '@material-ui/icons/Close'
 import Check from '@material-ui/icons/Check'
 import NewFile from './Fplus.svg'
 import OpenFile from './Fopen.svg'
 import { RouteComponentProps, Route, Switch } from 'react-router-dom'
 import { withRouter } from 'react-router'
+import './SelectMenu.css'
 
 interface State {
     words: string
     filename: string
 }
 
+const useStyles = makeStyles(theme => ({
+    CheckButton: {
+        backgroundColor: 'lightgreen',
+    },
+}))
+
 const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
+    const classes = useStyles()
+
     const [values, setValues] = useState<State>({
         words: '3',
         filename: '',
@@ -81,13 +90,10 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
                 />
             </CardContent>
             <CardActions className="CardButton">
-                <IconButton color="primary">
-                    <Check />
+                <IconButton className={classes.CheckButton}>
+                    <Check htmlColor="white" />
                 </IconButton>
-                <IconButton
-                    color="inherit"
-                    onClick={() => handlePageChange('/')}
-                >
+                <IconButton onClick={() => handlePageChange('/')}>
                     <Close />
                 </IconButton>
             </CardActions>
