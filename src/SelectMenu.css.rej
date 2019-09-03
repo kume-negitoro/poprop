@@ -1,0 +1,4 @@
+diff a/src/SelectMenu.css b/src/SelectMenu.css	(rejected hunks)
+@@ -25 +25 @@
+-.CheckButton{
++.CheckButton {
