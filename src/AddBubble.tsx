@@ -1,5 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
+import { CSSTransition } from 'react-transition-group'
+
+import { easeOutElastic } from './keyframes/easeInElastic'
 
 export interface Props {
     x: number
@@ -18,12 +21,28 @@ export interface ConfirmEvent {
     value: string
 }
 
-const G = styled.g``
+const G = styled.g`
+    .bubble-enter {
+        opacity: 0;
+        transform: scale(0);
+    }
+    .bubble-enter-active {
+        opacity: 1;
+        transform: translateX(0);
+        transition: opacity 800ms;
+        animation: ${easeOutElastic} 800ms reverse;
+    }
+`
 
 export class AddBubble extends React.Component<Props, State> {
     public constructor(props: Props) {
         super(props)
         this.state = { ...props, in: false }
+    }
+    public componentDidMount(): void {
+        this.setState({
+            in: true,
+        })
     }
     /* eslint @typescript-eslint/no-unused-vars: 0 */
     private handleClick(ev: React.MouseEvent): void {
@@ -33,23 +52,31 @@ export class AddBubble extends React.Component<Props, State> {
     }
     public render(): JSX.Element {
         return (
-            <G>
-                <circle
-                    onClick={ev => this.handleClick(ev)}
-                    cx={this.props.x}
-                    cy={this.props.y}
-                    r="50"
-                    fill="pink"
-                />
-                <text
-                    x={this.props.x}
-                    y={this.props.y}
-                    fill="black"
-                    textAnchor="middle"
-                    dominantBaseline="central"
+            <G transform={`translate(${this.props.x},${this.props.y})`}>
+                <CSSTransition
+                    classNames="bubble"
+                    in={this.state.in}
+                    timeout={1000}
                 >
-                    +
-                </text>
+                    <circle
+                        onClick={ev => this.handleClick(ev)}
+                        r="50"
+                        fill="pink"
+                    />
+                </CSSTransition>
+                <CSSTransition
+                    classNames="bubble"
+                    in={this.state.in}
+                    timeout={1000}
+                >
+                    <text
+                        fill="black"
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                    >
+                        +
+                    </text>
+                </CSSTransition>
             </G>
         )
     }

@@ -15,6 +15,7 @@ import OpenFile from './Fopen.svg'
 import { RouteComponentProps, Route, Switch } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import './SelectMenu.css'
+import { AppMain, Props as AppMainProps } from './AppMain'
 
 interface State {
     words: string
@@ -90,7 +91,10 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
                 />
             </CardContent>
             <CardActions className="CardButton">
-                <IconButton className={classes.CheckButton}>
+                <IconButton
+                    onClick={() => handlePageChange('/MainApp')}
+                    className={classes.CheckButton}
+                >
                     <Check htmlColor="white" />
                 </IconButton>
                 <IconButton onClick={() => handlePageChange('/')}>
@@ -100,11 +104,14 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
         </Card>
     )
 
+    const mainPage = () => <AppMain projectName={values.filename} />
+
     return (
         <div>
             <Switch>
                 <Route path="/" exact component={topPage} />
                 <Route path="/NewFile" exact component={newFile} />
+                <Route path="/MainApp" exact component={mainPage} />
             </Switch>
         </div>
     )

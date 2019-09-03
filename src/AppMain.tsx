@@ -1,8 +1,12 @@
 import React from 'react'
+import styled from 'styled-components'
 import { DraggableEvent, DraggableData } from 'react-draggable'
 import { Bubble, Props as BubbleProps } from './Bubble'
 import { AddBubble, ConfirmEvent, Props as AddBubbleProps } from './AddBubble'
 import { parseAsModel, Model } from 'w2v-api'
+
+const canvasWidth = 2000
+const canvasHeight = 2000
 
 export interface ProjectData {
     projectName: string
@@ -26,7 +30,18 @@ export interface State {
     suggestAddBubbleProp?: Omit<AddBubbleProps, 'onConfirm'>
 }
 
+const Wrapper = styled.div`
+    all: initial;
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+    position: absolute;
+    top: 0;
+    left: 0;
+`
+
 export class AppMain extends React.Component<Props, State> {
+    private wrapperRef: React.RefObject<HTMLDivElement>
     private svgWrapperRef: React.RefObject<HTMLDivElement>
     private model: Promise<Model>
 
@@ -37,8 +52,8 @@ export class AppMain extends React.Component<Props, State> {
             childBubblesProps: [],
             suggestBubblesProps: [],
             suggestAddBubbleProp: {
-                x: 200,
-                y: 200,
+                x: canvasWidth / 2,
+                y: canvasHeight / 2,
                 parent: '',
             },
         }
@@ -46,6 +61,7 @@ export class AppMain extends React.Component<Props, State> {
         ;(window as any).save = () => this.save()
         ;(window as any).restore = (projectName: string) =>
             this.restore(projectName)
+        this.wrapperRef = React.createRef()
         this.svgWrapperRef = React.createRef()
         this.model = fetch('ja.tsv')
             .then(res => res.text())
@@ -60,11 +76,21 @@ export class AppMain extends React.Component<Props, State> {
             childBubblesProps: [],
             suggestBubblesProps: [],
             suggestAddBubbleProp: {
-                x: 200,
-                y: 200,
+                x: canvasWidth / 2,
+                y: canvasHeight / 2,
                 parent: '',
             },
         })
+    }
+
+    public componentDidMount(): void {
+        const wrapper = this.wrapperRef.current
+        if (wrapper) {
+            wrapper.scrollTo(
+                (wrapper.scrollWidth - window.screen.width) / 2,
+                (wrapper.scrollHeight - window.screen.height) / 2
+            )
+        }
     }
 
     public componentDidUpdate(prev: Props): void {
@@ -317,65 +343,67 @@ export class AppMain extends React.Component<Props, State> {
 
     public render(): JSX.Element {
         return (
-            <div ref={this.svgWrapperRef}>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    version="1.1"
-                    width="2000"
-                    height="2000"
-                    onClick={ev => this.handleScreenClick(ev)}
-                >
-                    {/* 線の表示 */}
-                    {this.state.childBubblesProps.length > 0 &&
-                        this.getAllLinesProps(
-                            this.state.childBubblesProps[0]
-                        ).map((props, i) => (
-                            <line
+            <Wrapper ref={this.wrapperRef}>
+                <div ref={this.svgWrapperRef}>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        version="1.1"
+                        width={canvasWidth}
+                        height={canvasHeight}
+                        onClick={ev => this.handleScreenClick(ev)}
+                    >
+                        {/* 線の表示 */}
+                        {this.state.childBubblesProps.length > 0 &&
+                            this.getAllLinesProps(
+                                this.state.childBubblesProps[0]
+                            ).map((props, i) => (
+                                <line
+                                    key={i}
+                                    stroke="black"
+                                    x1={props.x1}
+                                    y1={props.y1}
+                                    x2={props.x2}
+                                    y2={props.y2}
+                                />
+                            ))}
+
+                        {/* 泡の表示 */}
+                        {this.state.childBubblesProps.map((props, i) => (
+                            <Bubble
                                 key={i}
-                                stroke="black"
-                                x1={props.x1}
-                                y1={props.y1}
-                                x2={props.x2}
-                                y2={props.y2}
+                                onClick={(ev, data) =>
+                                    this.handleChildBubbleClick(ev, data, i)
+                                }
+                                onDrag={(ev, data) =>
+                                    this.handleChildBubbleDrag(ev, data, i)
+                                }
+                                {...props}
                             />
                         ))}
 
-                    {/* 泡の表示 */}
-                    {this.state.childBubblesProps.map((props, i) => (
-                        <Bubble
-                            key={i}
-                            onClick={(ev, data) =>
-                                this.handleChildBubbleClick(ev, data, i)
-                            }
-                            onDrag={(ev, data) =>
-                                this.handleChildBubbleDrag(ev, data, i)
-                            }
-                            {...props}
-                        />
-                    ))}
+                        {/* 追加用の泡の表示 */}
+                        {this.state.suggestAddBubbleProp ? (
+                            <AddBubble
+                                onConfirm={(ev, data) =>
+                                    this.handleComfirm(ev, data)
+                                }
+                                {...this.state.suggestAddBubbleProp}
+                            />
+                        ) : null}
 
-                    {/* 追加用の泡の表示 */}
-                    {this.state.suggestAddBubbleProp ? (
-                        <AddBubble
-                            onConfirm={(ev, data) =>
-                                this.handleComfirm(ev, data)
-                            }
-                            {...this.state.suggestAddBubbleProp}
-                        />
-                    ) : null}
-
-                    {/* 提案用の泡の表示 */}
-                    {this.state.suggestBubblesProps.map((props, i) => (
-                        <Bubble
-                            key={i}
-                            onClick={(ev, data) =>
-                                this.handleSuggestBubbleClick(ev, data, i)
-                            }
-                            {...props}
-                        />
-                    ))}
-                </svg>
-            </div>
+                        {/* 提案用の泡の表示 */}
+                        {this.state.suggestBubblesProps.map((props, i) => (
+                            <Bubble
+                                key={i}
+                                onClick={(ev, data) =>
+                                    this.handleSuggestBubbleClick(ev, data, i)
+                                }
+                                {...props}
+                            />
+                        ))}
+                    </svg>
+                </div>
+            </Wrapper>
         )
     }
 }
