@@ -53,7 +53,7 @@ export class Bubble extends React.Component<Props, State> {
         return (
             <DraggableCore onDrag={this.props.onDrag}>
                 <G
-                    opacity={this.props.active ? 1 : 0.2}
+                    opacity={this.props.active ? 1 : 0.5}
                     transform={`translate(${this.props.x},${this.props.y})`}
                 >
                     <CSSTransition

@@ -1,10 +1,10 @@
 import React from 'react'
 // import logo from './logo.svg'
 import './App.css'
-import { SvgCanvas } from './SvgCanvas'
+import { AppMain } from './AppMain'
 
 const App: React.FC = (): JSX.Element => {
-    return <SvgCanvas />
+    return <AppMain projectName="test" />
 }
 
 export default App

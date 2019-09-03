@@ -4,20 +4,36 @@ import { Bubble, Props as BubbleProps } from './Bubble'
 import { AddBubble, ConfirmEvent, Props as AddBubbleProps } from './AddBubble'
 import { parseAsModel, Model } from 'w2v-api'
 
-/* eslint @typescript-eslint/no-empty-interface: 0 */
-export interface Props {}
+export interface ProjectData {
+    projectName: string
+    bubbles: {
+        x: number
+        y: number
+        word: string
+        parent: string
+        children: string[]
+    }[]
+}
+
+export interface Props {
+    projectName: string
+}
 
 export interface State {
+    projectName: string
     childBubblesProps: Omit<BubbleProps, 'key' | 'onDrag'>[]
     suggestBubblesProps: Omit<BubbleProps, 'key' | 'onDrag'>[]
     suggestAddBubbleProp?: Omit<AddBubbleProps, 'onConfirm'>
 }
 
-export class SvgCanvas extends React.Component<Props, State> {
+export class AppMain extends React.Component<Props, State> {
+    private svgWrapperRef: React.RefObject<HTMLDivElement>
     private model: Promise<Model>
+
     public constructor(props: Props) {
         super(props)
         this.state = {
+            projectName: props.projectName,
             childBubblesProps: [],
             suggestBubblesProps: [],
             suggestAddBubbleProp: {
@@ -26,14 +42,98 @@ export class SvgCanvas extends React.Component<Props, State> {
                 parent: '',
             },
         }
+        ;(window as any).download = () => this.downloadSVG()
+        ;(window as any).save = () => this.save()
+        ;(window as any).restore = (projectName: string) =>
+            this.restore(projectName)
+        this.svgWrapperRef = React.createRef()
         this.model = fetch('ja.tsv')
             .then(res => res.text())
             .then(text => parseAsModel(text.trim()))
             /* eslint no-console: 0 */
             .then(model => (console.log('done'), model))
     }
+
+    private reset(): void {
+        this.setState({
+            projectName: this.props.projectName,
+            childBubblesProps: [],
+            suggestBubblesProps: [],
+            suggestAddBubbleProp: {
+                x: 200,
+                y: 200,
+                parent: '',
+            },
+        })
+    }
+
+    public componentDidUpdate(prev: Props): void {
+        // プロジェクトが切り替わったらリセットする
+        if (this.props.projectName !== prev.projectName) {
+            this.reset()
+        }
+    }
+
+    public save(): void {
+        const data: ProjectData = {
+            projectName: this.props.projectName,
+            bubbles: this.state.childBubblesProps.map(props => ({
+                x: props.x,
+                y: props.y,
+                word: props.word,
+                parent: props.parent,
+                children: props.children,
+            })),
+        }
+
+        const projects = (JSON.parse(
+            localStorage.getItem('projects') || '{}'
+        ) as unknown) as Record<string, ProjectData>
+
+        projects[data.projectName] = data
+
+        localStorage.setItem('projects', JSON.stringify(projects))
+    }
+
+    public restore(projectName: string): void {
+        const projects = (JSON.parse(
+            localStorage.getItem('projects') || '{}'
+        ) as unknown) as Record<string, ProjectData>
+        const project = projects[projectName]
+        if (!project) {
+            return alert('指定されたプロジェクトを発見できませんでした')
+        }
+
+        this.setState({
+            suggestAddBubbleProp: undefined,
+            childBubblesProps: project.bubbles.map(data => ({
+                x: data.x,
+                y: data.y,
+                word: data.word,
+                parent: data.parent,
+                children: data.children,
+                active: true,
+                selected: false,
+            })),
+        })
+    }
+
+    // svgをダウンロードさせる
+    public downloadSVG(): void {
+        if (!this.svgWrapperRef.current) {
+            return alert('正しくエクスポートが完了しませんでした')
+        }
+        const svg = this.svgWrapperRef.current.innerHTML
+        const blob = new Blob([svg], { type: 'image/svg+xml' })
+        const a = document.createElement('a')
+        a.download = this.props.projectName + '.svg'
+        a.href = URL.createObjectURL(blob)
+        a.click()
+    }
+
     /* eslint @typescript-eslint/no-unused-vars: 0 */
     private handleScreenClick(ev: React.MouseEvent): void {
+        // 何もないところをクリックで選択を解除し提案用の泡も消す
         this.setState(prev => ({
             suggestAddBubbleProp:
                 this.state.childBubblesProps.length > 0
@@ -47,15 +147,17 @@ export class SvgCanvas extends React.Component<Props, State> {
             suggestBubblesProps: [],
         }))
     }
+
     private handleComfirm(ev: ConfirmEvent, data: AddBubbleProps): void {
         if (
             this.state.childBubblesProps
                 .map(props => props.word)
                 .includes(ev.value)
         ) {
-            alert('既に同じ単語が存在するため追加できませんでした')
-            return
+            return alert('既に同じ単語が存在するため追加できませんでした')
         }
+
+        // 入力された文字列から泡を作り親子関係にする
         this.setState(prev => ({
             suggestAddBubbleProp: undefined,
             childBubblesProps: [
@@ -78,13 +180,16 @@ export class SvgCanvas extends React.Component<Props, State> {
             ],
         }))
     }
+
     private handleChildBubbleClick(
         ev: React.MouseEvent,
         data: BubbleProps,
         index: number
     ): void {
-        ev.stopPropagation()
+        ev.stopPropagation() // handleScreenClickまで伝搬するのを防止する
         console.log(data)
+
+        // クリックされた泡を選択状態にし、それ以外を選択解除する
         this.setState(prev => ({
             childBubblesProps: prev.childBubblesProps.map((props, i) =>
                 index === i
@@ -112,6 +217,8 @@ export class SvgCanvas extends React.Component<Props, State> {
                     this.state.childBubblesProps.map(props => props.word)
                 )[0] || []
             console.timeEnd()
+
+            // 提案用の泡を表示させる
             this.setState({
                 suggestAddBubbleProp: {
                     x: target.x + 200,
@@ -136,6 +243,7 @@ export class SvgCanvas extends React.Component<Props, State> {
             })
         })
     }
+
     private handleChildBubbleDrag(
         ev: DraggableEvent,
         data: DraggableData,
@@ -154,12 +262,15 @@ export class SvgCanvas extends React.Component<Props, State> {
             ),
         }))
     }
+
     private handleSuggestBubbleClick(
         ev: React.MouseEvent,
         data: BubbleProps,
         index: number
     ): void {
         ev.stopPropagation()
+
+        // 提案用の泡を実体化させて親子関係にする
         this.setState(prev => ({
             suggestAddBubbleProp: undefined,
             suggestBubblesProps: [],
@@ -185,11 +296,13 @@ export class SvgCanvas extends React.Component<Props, State> {
             ],
         }))
     }
+
     private getChildBubblePropsFromWord(
         word: string
     ): Omit<BubbleProps, 'key' | 'onDrag'> | undefined {
         return this.state.childBubblesProps.find(props => props.word === word)
     }
+
     private getAllLinesProps(
         root: Omit<BubbleProps, 'key' | 'onDrag'>,
         returns: { x1: number; y1: number; x2: number; y2: number }[] = []
@@ -201,18 +314,22 @@ export class SvgCanvas extends React.Component<Props, State> {
             return this.getAllLinesProps(props, [lprops, ...returns])
         })
     }
+
     public render(): JSX.Element {
         return (
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                version="1.1"
-                width="1000"
-                height="1000"
-                onClick={ev => this.handleScreenClick(ev)}
-            >
-                {this.state.childBubblesProps.length > 0 &&
-                    this.getAllLinesProps(this.state.childBubblesProps[0]).map(
-                        (props, i) => (
+            <div ref={this.svgWrapperRef}>
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    version="1.1"
+                    width="2000"
+                    height="2000"
+                    onClick={ev => this.handleScreenClick(ev)}
+                >
+                    {/* 線の表示 */}
+                    {this.state.childBubblesProps.length > 0 &&
+                        this.getAllLinesProps(
+                            this.state.childBubblesProps[0]
+                        ).map((props, i) => (
                             <line
                                 key={i}
                                 stroke="black"
@@ -221,41 +338,44 @@ export class SvgCanvas extends React.Component<Props, State> {
                                 x2={props.x2}
                                 y2={props.y2}
                             />
-                        )
-                    )}
-                {this.state.childBubblesProps.map((props, i) => (
-                    <Bubble
-                        key={i}
-                        onClick={(ev, data) =>
-                            this.handleChildBubbleClick(ev, data, i)
-                        }
-                        onDrag={(ev, data) =>
-                            this.handleChildBubbleDrag(ev, data, i)
-                        }
-                        {...props}
-                    />
-                ))}
-                {this.state.suggestAddBubbleProp ? (
-                    <AddBubble
-                        onConfirm={(ev, data) => this.handleComfirm(ev, data)}
-                        {...this.state.suggestAddBubbleProp}
-                    />
-                ) : null}
-                {this.state.suggestBubblesProps.map((props, i) => (
-                    <Bubble
-                        key={i}
-                        onClick={(ev, data) =>
-                            this.handleSuggestBubbleClick(ev, data, i)
-                        }
-                        {...props}
-                    />
-                ))}
-                {/* <AddBubble
-                    onConfirm={ev => this.handleComfirm(ev)}
-                    x={100}
-                    y={100}
-                /> */}
-            </svg>
+                        ))}
+
+                    {/* 泡の表示 */}
+                    {this.state.childBubblesProps.map((props, i) => (
+                        <Bubble
+                            key={i}
+                            onClick={(ev, data) =>
+                                this.handleChildBubbleClick(ev, data, i)
+                            }
+                            onDrag={(ev, data) =>
+                                this.handleChildBubbleDrag(ev, data, i)
+                            }
+                            {...props}
+                        />
+                    ))}
+
+                    {/* 追加用の泡の表示 */}
+                    {this.state.suggestAddBubbleProp ? (
+                        <AddBubble
+                            onConfirm={(ev, data) =>
+                                this.handleComfirm(ev, data)
+                            }
+                            {...this.state.suggestAddBubbleProp}
+                        />
+                    ) : null}
+
+                    {/* 提案用の泡の表示 */}
+                    {this.state.suggestBubblesProps.map((props, i) => (
+                        <Bubble
+                            key={i}
+                            onClick={(ev, data) =>
+                                this.handleSuggestBubbleClick(ev, data, i)
+                            }
+                            {...props}
+                        />
+                    ))}
+                </svg>
+            </div>
         )
     }
 }
