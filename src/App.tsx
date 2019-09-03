@@ -1,10 +1,18 @@
 import React from 'react'
-// import logo from './logo.svg'
+import SelectMenu from './SelectMenu'
 import './App.css'
-import { AppMain } from './AppMain'
+import { BrowserRouter as Router } from 'react-router-dom'
 
 const App: React.FC = (): JSX.Element => {
-    return <AppMain projectName="test" />
+    return (
+        <div className="App">
+            <header className="App-header">
+                <Router>
+                    <SelectMenu />
+                </Router>
+            </header>
+        </div>
+    )
 }
 
 export default App
