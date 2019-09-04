@@ -87,8 +87,8 @@ export class AppMain extends React.Component<Props, State> {
         const wrapper = this.wrapperRef.current
         if (wrapper) {
             wrapper.scrollTo(
-                (wrapper.scrollWidth - window.screen.width) / 2,
-                (wrapper.scrollHeight - window.screen.height) / 2
+                (canvasWidth - window.screen.width) / 2,
+                (canvasHeight - window.screen.height) / 2
             )
         }
     }
@@ -281,8 +281,14 @@ export class AppMain extends React.Component<Props, State> {
                 index === i
                     ? {
                           ...props,
-                          x: props.x + data.deltaX,
-                          y: props.y + data.deltaY,
+                          x: Math.min(
+                              Math.max(0, props.x + data.deltaX),
+                              canvasWidth
+                          ),
+                          y: Math.min(
+                              Math.max(0, props.y + data.deltaY),
+                              canvasWidth
+                          ),
                       }
                     : props
             ),
@@ -344,6 +350,7 @@ export class AppMain extends React.Component<Props, State> {
     public render(): JSX.Element {
         return (
             <Wrapper ref={this.wrapperRef}>
+                <div>あ</div>
                 <div ref={this.svgWrapperRef}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
