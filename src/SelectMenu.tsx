@@ -48,10 +48,6 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
     const handlePageChange = (address: string) => {
         props.history.push({
             pathname: address,
-            state: {
-                filename: values.filename,
-                words: values.words,
-            },
         })
     }
 
@@ -74,7 +70,8 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
     ) as unknown) as Record<string, ProjectData>
 
     function generate() {
-        const keys: string[] = Object.keys(projects)
+        //const keys: string[] = Object.keys(projects)
+        const keys: string[] = ['test1', 'test2']
         if (keys.length == 0) {
             return (
                 <ListItem>
