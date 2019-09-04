@@ -22,6 +22,7 @@ export interface ConfirmEvent {
 }
 
 const G = styled.g`
+    font-size: 150%;
     .bubble-enter {
         opacity: 0;
         transform: scale(0);
