@@ -4,9 +4,10 @@ import { DraggableEvent, DraggableData } from 'react-draggable'
 import { Bubble, Props as BubbleProps } from './Bubble'
 import { AddBubble, ConfirmEvent, Props as AddBubbleProps } from './AddBubble'
 import { parseAsModel, Model } from 'w2v-api'
+import { AppMainHeader } from './AppMainHeader'
 
-const canvasWidth = 2000
-const canvasHeight = 2000
+const canvasWidth = 3000
+const canvasHeight = 3000
 
 export interface ProjectData {
     projectName: string
@@ -32,13 +33,16 @@ export interface State {
 
 const Wrapper = styled.div`
     all: initial;
+    margin-top: 64px;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 64px);
     overflow: scroll;
     position: absolute;
     top: 0;
     left: 0;
 `
+
+const SVGWrapper = styled.div``
 
 export class AppMain extends React.Component<Props, State> {
     private wrapperRef: React.RefObject<HTMLDivElement>
@@ -86,9 +90,10 @@ export class AppMain extends React.Component<Props, State> {
     public componentDidMount(): void {
         const wrapper = this.wrapperRef.current
         if (wrapper) {
+            console.log(canvasWidth, window.screen.width)
             wrapper.scrollTo(
                 (canvasWidth - window.screen.width) / 2,
-                (canvasHeight - window.screen.height) / 2
+                (canvasHeight - (window.screen.height - 256)) / 2
             )
         }
     }
@@ -156,6 +161,16 @@ export class AppMain extends React.Component<Props, State> {
         a.href = URL.createObjectURL(blob)
         a.click()
     }
+
+    private handleExport(): void {
+        this.downloadSVG()
+    }
+
+    private handleSave(): void {
+        this.save()
+    }
+
+    private handleExit(): void {}
 
     /* eslint @typescript-eslint/no-unused-vars: 0 */
     private handleScreenClick(ev: React.MouseEvent): void {
@@ -350,8 +365,12 @@ export class AppMain extends React.Component<Props, State> {
     public render(): JSX.Element {
         return (
             <Wrapper ref={this.wrapperRef}>
-                <div>あ</div>
-                <div ref={this.svgWrapperRef}>
+                <AppMainHeader
+                    onExit={() => this.handleExit()}
+                    onSave={() => this.handleSave()}
+                    onExport={() => this.handleExport()}
+                />
+                <SVGWrapper ref={this.svgWrapperRef}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         version="1.1"
@@ -409,7 +428,7 @@ export class AppMain extends React.Component<Props, State> {
                             />
                         ))}
                     </svg>
-                </div>
+                </SVGWrapper>
             </Wrapper>
         )
     }
