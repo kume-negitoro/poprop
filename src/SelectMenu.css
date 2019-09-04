@@ -22,3 +22,19 @@
 .WordCountInput {
     width: 50px;
 }
+.List {
+    text-align: center;
+}
+.ListContent {
+    background-color: white;
+    width: 500px;
+    height: 55px;
+}
+.ListContentText {
+    margin-left: 10px;
+    margin-bottom: 100px;
+}
+.ListContentButton {
+    margin-right: 10px;
+    margin-bottom: 100px;
+}

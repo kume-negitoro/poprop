@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/jsx-key */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import React, { useState } from 'react'
 import Button from '@material-ui/core/Button'
@@ -7,15 +9,22 @@ import Container from '@material-ui/core/Container'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
-import { makeStyles } from '@material-ui/core'
+import {
+    makeStyles,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemSecondaryAction,
+} from '@material-ui/core'
 import Close from '@material-ui/icons/Close'
 import Check from '@material-ui/icons/Check'
 import NewFile from './Fplus.svg'
 import OpenFile from './Fopen.svg'
 import { RouteComponentProps, Route, Switch } from 'react-router-dom'
 import { withRouter } from 'react-router'
+import { AppMain, Props as AppMainProps, ProjectData } from './AppMain'
 import './SelectMenu.css'
-import { AppMain, Props as AppMainProps } from './AppMain'
+import { string } from 'prop-types'
 
 interface State {
     words: string
@@ -37,14 +46,63 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
     })
 
     const handlePageChange = (address: string) => {
-        // eslint-disable-next-line react/prop-types
-        props.history.push(address)
+        props.history.push({
+            pathname: address,
+            state: {
+                filename: values.filename,
+                words: values.words,
+            },
+        })
     }
 
     const handleChange = (name: keyof State) => (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         setValues({ ...values, [name]: event.target.value })
+    }
+    const handleButton = (
+        name: keyof State,
+        value: string,
+        address: string
+    ) => () => {
+        setValues({ ...values, [name]: value })
+        props.history.push({ pathname: address })
+    }
+
+    const projects = (JSON.parse(
+        localStorage.getItem('projects') || '{}'
+    ) as unknown) as Record<string, ProjectData>
+
+    function generate() {
+        const keys: string[] = Object.keys(projects)
+        if (keys.length == 0) {
+            return (
+                <ListItem>
+                    <Card className="ListContent">
+                        <ListItemText
+                            className="ListContentText"
+                            primary="プロジェクトがありません"
+                        />
+                    </Card>
+                </ListItem>
+            )
+        }
+        return keys.map(v => (
+            <ListItem>
+                <Card className="ListContent">
+                    <ListItemText className="ListContentText" primary={v} />
+                    <ListItemSecondaryAction className="ListContentButton">
+                        <Button
+                            variant="outlined"
+                            defaultValue={v}
+                            onClick={handleButton('filename', v, '/MainApp')}
+                        >
+                            開く
+                        </Button>
+                    </ListItemSecondaryAction>
+                </Card>
+            </ListItem>
+        ))
     }
 
     const topPage = () => (
@@ -59,7 +117,11 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
                     <p className="ButtonText">新規プロジェクト</p>
                 </Container>
             </Button>
-            <Button variant="text" color="inherit">
+            <Button
+                variant="text"
+                color="inherit"
+                onClick={() => handlePageChange('/ExistingFile')}
+            >
                 <Container className="ButtonContainer">
                     <img className="ButtonImage" src={OpenFile} />
                     <p className="ButtonText">既存プロジェクト</p>
@@ -73,8 +135,8 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
                     className="WordCountInput"
                     inputProps={{ style: { textAlign: 'right' } }}
                     type="number"
-                    value={values.words}
-                    onChange={handleChange('words')}
+                    defaultValue={values.words}
+                    onBlur={handleChange('words')}
                 />
             </div>
         </div>
@@ -86,8 +148,8 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
                 <TextField
                     className="FileName"
                     label="プロジェクト名"
-                    value={values.filename}
-                    onChange={handleChange('filename')}
+                    defaultValue={values.filename}
+                    onBlur={handleChange('filename')}
                 />
             </CardContent>
             <CardActions className="CardButton">
@@ -104,6 +166,13 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
         </Card>
     )
 
+    const existingFile = () => (
+        <div className="List">
+            ファイル一覧
+            <List component="nav">{generate()}</List>
+        </div>
+    )
+
     const mainPage = () => <AppMain projectName={values.filename} />
 
     return (
@@ -111,6 +180,7 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
             <Switch>
                 <Route path="/" exact component={topPage} />
                 <Route path="/NewFile" exact component={newFile} />
+                <Route path="/ExistingFile" exact component={existingFile} />
                 <Route path="/MainApp" exact component={mainPage} />
             </Switch>
         </div>
