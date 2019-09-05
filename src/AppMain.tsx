@@ -22,6 +22,8 @@ export interface ProjectData {
 
 export interface Props {
     projectName: string
+    wordsLength: number
+    onExit: () => void
 }
 
 export interface State {
@@ -61,10 +63,13 @@ export class AppMain extends React.Component<Props, State> {
                 parent: '',
             },
         }
+        console.log(this.state.projectName)
         ;(window as any).download = () => this.downloadSVG()
         ;(window as any).save = () => this.save()
         ;(window as any).restore = (projectName: string) =>
             this.restore(projectName)
+
+        if (this.props.projectName === '') this.handleExit()
         this.wrapperRef = React.createRef()
         this.svgWrapperRef = React.createRef()
         this.model = fetch('ja.tsv')
@@ -88,6 +93,7 @@ export class AppMain extends React.Component<Props, State> {
     }
 
     public componentDidMount(): void {
+        this.restore(this.props.projectName)
         const wrapper = this.wrapperRef.current
         if (wrapper) {
             console.log(canvasWidth, window.screen.width)
@@ -131,9 +137,7 @@ export class AppMain extends React.Component<Props, State> {
             localStorage.getItem('projects') || '{}'
         ) as unknown) as Record<string, ProjectData>
         const project = projects[projectName]
-        if (!project) {
-            return alert('指定されたプロジェクトを発見できませんでした')
-        }
+        if (!project) return
 
         this.setState({
             suggestAddBubbleProp: undefined,
@@ -170,7 +174,9 @@ export class AppMain extends React.Component<Props, State> {
         this.save()
     }
 
-    private handleExit(): void {}
+    private handleExit(): void {
+        this.props.onExit()
+    }
 
     /* eslint @typescript-eslint/no-unused-vars: 0 */
     private handleScreenClick(ev: React.MouseEvent): void {
@@ -267,7 +273,7 @@ export class AppMain extends React.Component<Props, State> {
                     parent: target.word,
                 },
                 suggestBubblesProps: similars.map((wv, i) => {
-                    const d = (360 / 6) * (i + 1)
+                    const d = (360 / this.props.wordsLength) * (i + 1)
                     const x = target.x + 200 * Math.cos(d * (Math.PI / 180))
                     const y = target.y + 200 * Math.sin(d * (Math.PI / 180))
                     return {

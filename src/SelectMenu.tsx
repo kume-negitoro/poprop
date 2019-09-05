@@ -41,7 +41,7 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
     const classes = useStyles()
 
     const [values, setValues] = useState<State>({
-        words: '3',
+        words: '6',
         filename: '',
     })
 
@@ -70,8 +70,8 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
     ) as unknown) as Record<string, ProjectData>
 
     function generate() {
-        //const keys: string[] = Object.keys(projects)
-        const keys: string[] = ['test1', 'test2']
+        const keys: string[] = Object.keys(projects)
+        // const keys: string[] = ['test1', 'test2']
         if (keys.length == 0) {
             return (
                 <ListItem>
@@ -170,7 +170,13 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
         </div>
     )
 
-    const mainPage = () => <AppMain projectName={values.filename} />
+    const mainPage = () => (
+        <AppMain
+            onExit={() => handlePageChange('/')}
+            wordsLength={+values.words}
+            projectName={values.filename}
+        />
+    )
 
     return (
         <div>
