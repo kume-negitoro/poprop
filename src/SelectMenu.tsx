@@ -74,7 +74,7 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
         // const keys: string[] = ['test1', 'test2']
         if (keys.length == 0) {
             return (
-                <ListItem>
+                <ListItem key="0">
                     <Card className="ListContent">
                         <ListItemText
                             className="ListContentText"
@@ -84,8 +84,8 @@ const SelectMenu: React.FC<RouteComponentProps> = (props): JSX.Element => {
                 </ListItem>
             )
         }
-        return keys.map(v => (
-            <ListItem>
+        return keys.map((v, i) => (
+            <ListItem key={i}>
                 <Card className="ListContent">
                     <ListItemText className="ListContentText" primary={v} />
                     <ListItemSecondaryAction className="ListContentButton">
