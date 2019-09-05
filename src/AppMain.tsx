@@ -403,6 +403,7 @@ export class AppMain extends React.Component<Props, State> {
                         {this.state.childBubblesProps.map((props, i) => (
                             <Bubble
                                 key={i}
+                                fill={i === 0 ? 'hotpink' : undefined}
                                 onClick={(ev, data) =>
                                     this.handleChildBubbleClick(ev, data, i)
                                 }
