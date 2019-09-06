@@ -261,7 +261,7 @@ export class AppMain extends React.Component<Props, State> {
                 console.time()
                 const similars = model.mostSimilar(
                     [target.word],
-                    5,
+                    this.props.wordsLength - 1,
                     this.state.childBubblesProps.map(props => props.word)
                 )[0]
                 console.timeEnd()
