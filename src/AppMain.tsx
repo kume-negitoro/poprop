@@ -3,8 +3,9 @@ import styled from 'styled-components'
 import { DraggableEvent, DraggableData } from 'react-draggable'
 import { Bubble, Props as BubbleProps } from './Bubble'
 import { AddBubble, ConfirmEvent, Props as AddBubbleProps } from './AddBubble'
-import { parseAsModel, Model } from 'w2v-api'
+import { parseAsModel, Model, WordVector, WordDist } from 'w2v-api'
 import { AppMainHeader } from './AppMainHeader'
+import { jsonp } from './utils/jsonp'
 
 const canvasWidth = 3000
 const canvasHeight = 3000
@@ -253,42 +254,63 @@ export class AppMain extends React.Component<Props, State> {
             ),
         }))
 
+        const target = this.state.childBubblesProps[index]
         // suggest
-        this.model.then(model => {
-            const target = this.state.childBubblesProps[index]
-            console.time()
-            const similars =
-                model.mostSimilar(
+        this.model
+            .then(model => {
+                console.time()
+                const similars = model.mostSimilar(
                     [target.word],
                     5,
                     this.state.childBubblesProps.map(props => props.word)
-                )[0] || []
-            console.timeEnd()
+                )[0]
+                console.timeEnd()
+                if (similars) return similars
 
-            // 提案用の泡を表示させる
-            this.setState({
-                suggestAddBubbleProp: {
-                    x: target.x + 200,
-                    y: target.y + 0,
-                    parent: target.word,
-                },
-                suggestBubblesProps: similars.map((wv, i) => {
-                    const d = (360 / this.props.wordsLength) * (i + 1)
-                    const x = target.x + 200 * Math.cos(d * (Math.PI / 180))
-                    const y = target.y + 200 * Math.sin(d * (Math.PI / 180))
-                    return {
-                        x,
-                        y,
-                        word: wv.word,
-                        fill: 'skyblue',
-                        active: true,
-                        selected: false,
-                        parent: target.word,
-                        children: [],
-                    }
-                }),
+                return jsonp(
+                    `https://script.google.com/macros/s/AKfycbxmmq1mcX_s84FUe21MsHK8-QYt199ZGB7Vh_8iuQ/exec?sentence=${target.word}`
+                ).then((res: any) => {
+                    if (res.Error) return []
+                    const word = Object.entries<any>(res).sort(
+                        (v1, v2) => v2[1] - v1[1]
+                    )[0][0]
+                    console.log(word)
+                    return (
+                        model.mostSimilar(
+                            [word],
+                            5,
+                            this.state.childBubblesProps.map(
+                                props => props.word
+                            )
+                        )[0] || []
+                    )
+                })
             })
-        })
+            .then((similars: WordDist[]) => {
+                // 提案用の泡を表示させる
+                this.setState({
+                    suggestAddBubbleProp: {
+                        x: target.x + 200,
+                        y: target.y + 0,
+                        parent: target.word,
+                    },
+                    suggestBubblesProps: similars.map((wv, i) => {
+                        const d = (360 / this.props.wordsLength) * (i + 1)
+                        const x = target.x + 200 * Math.cos(d * (Math.PI / 180))
+                        const y = target.y + 200 * Math.sin(d * (Math.PI / 180))
+                        return {
+                            x,
+                            y,
+                            word: wv.word,
+                            fill: 'skyblue',
+                            active: true,
+                            selected: false,
+                            parent: target.word,
+                            children: [],
+                        }
+                    }),
+                })
+            })
     }
 
     private handleChildBubbleDrag(
